@@ -1,0 +1,14 @@
+--Customer Name list--
+null
+null
+zaini
+null
+null
+null
+null
+null
+null
+null
+-----------------------
+Remaining burgers stock
+45
