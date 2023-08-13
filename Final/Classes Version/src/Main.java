@@ -607,27 +607,33 @@ public class Main {
         Scanner input= new Scanner(System.in);
         try{
             //prompt customer details
+            String tempFirst=customer.getFirstName();
             System.out.print("If you want to change the first name enter 1 :");
             String option1= input.next();
             if (option1.equals("1")) {
                 System.out.print("Enter the customer's first name to change: ");
                 String firstName = input.next().toLowerCase();
                 customer.setFirstName(firstName);
+                System.out.println("Customer's First name "+tempFirst+" changed to "+firstName);
             }
+            String tempSecond= customer.getSecondName();
             System.out.print("If you want to change the first name enter 2 :");
             String option2= input.next();
             if (option2.equals("2")) {
                 System.out.print("Enter the customer's second name to change: ");
                 String secondName = input.next().toLowerCase();
                 customer.setSecondName(secondName);
+                System.out.println("Customer's First name "+tempSecond+" changed to "+secondName);
             }
-            System.out.print("If you want to change the first name enter 3 :");
+            int tempBurgerCount= customer.getNoOfBurgers();
+            System.out.print("If you want to change the order burger count enter 3 :");
             String option3= input.next();
             if (option3.equals("3")) {
                 System.out.print("Enter the number of burgers required to change: ");
                 int noOfBurgers = input.nextInt();
                 if (noOfBurgers<=50){
                     customer.setNoOfBurgers(noOfBurgers);
+                    System.out.println("Customer's order burger count "+tempBurgerCount+" changed to "+noOfBurgers);
                 }else{
                     System.out.println("The maximum number of burgers that can be ordered is 50.");
                 }
