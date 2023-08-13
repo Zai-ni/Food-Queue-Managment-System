@@ -33,6 +33,10 @@ public class Main {
                         108 or STK: View Remaining burgers Stock.
                         109 or AFS: Add burgers to Stock.
                         110 or IFQ: View income for each queue.
+                        111 or MQC: View main queue customer names.
+                        112 or WQC: View waiting queue customer names.
+                        113 or CMC: Change main queue customer details.
+                        114 or CWC: Change waiting queue customer details.
                         999 or EXT: Exit the Program.
                         """
         );
@@ -174,13 +178,45 @@ public class Main {
                 case "AFS":
                     balanceBurgerStock = addBurgers(balanceBurgerStock);
                     break;
-                //Exit the Program.
+                //View each queue income
                 case "110":
                 case "IFQ":
                     System.out.println("Queue1 income is $" + queue1Income);
                     System.out.println("Queue2 income is $" + queue2Income);
                     System.out.println("Queue3 income is $" + queue3Income);
                     break;
+                //View main queue customer names
+                case "111":
+                case "MQC":
+                    for (ArrayList<Customer> mainQueue:queues){
+                        for(Customer element:mainQueue){
+                            if (element!=null){
+                                System.out.println(element.getFullName());
+                            }
+                        }
+                    }
+                    break;
+                //View waiting queue customer names
+                case "112":
+                case "VWQ":
+                    Customer[] waitingQueueList= waitingQueue.getWaitingQueue();
+                    for(Customer element:waitingQueueList){
+                        if (element!=null){
+                            System.out.println(element.getFullName());
+                        }
+                    }
+                    break;
+                //Change main queue customer details
+                case "113":
+                case "CMC":
+                    changeCustomerDetails(queues,waitingQueue,"main");
+                    break;
+                //Change waiting queue customer details
+                case "114":
+                case "CWC":
+                    changeCustomerDetails(queues,waitingQueue,"waiting");
+                    break;
+                //Exit from program
                 case "999":
                 case "EXT":
                     loopBody = false;
@@ -261,28 +297,23 @@ public class Main {
     public static void addCustomer(Customer customer,ArrayList<ArrayList<Customer>> queues,WaitingQueue waitingQueue) {
 
         int maxQueueLength = maxQueueLength(queues);
-        int count = 0;
 
         //add customer to the shortest queue
         for (int slot = 0; slot < maxQueueLength; slot++) {
-            if (count < 1) {
+
                 for (int queue = 0; queue < queues.size(); queue++) {
                     if (slot < queues.get(queue).size()) {
                         if (queues.get(queue).get(slot) == null) {
                             queues.get(queue).set(slot, customer);
                             System.out.println(customer.getFullName()+" is added to the food queue"+(queue+1)+" slot"+(slot+1));
-                            count++;
-                            break;
+                            return;
                         } else if (queues.get(queues.size()-1).get(queues.get(queues.size()-1).size() - 1) != null) {
                             waitingQueue.enqueue(customer);
-                            count++;
-                            break;
+                            return;
                         }
                     }
                 }
-            } else {
-                break;
-            }
+
         }
     }
 
@@ -318,9 +349,10 @@ public class Main {
                     } else {
                         System.out.println(queues.get(queue).get(slot).getFullName() + " was removed from the row" + (slot + 1) + " of queue" + (queue + 1));
                         queues.get(queue).remove(slot);
-                        queues.get(queue).add(waitingQueue.dequeue());
+                        Customer waitingQueueCustomer= waitingQueue.dequeue();
+                        queues.get(queue).add(waitingQueueCustomer);
                         if(waitingQueue.dequeue()!=null){
-                            System.out.println(waitingQueue.dequeue().getFullName()+" was moved to food queue from  waiting queue ");
+                            System.out.println((waitingQueueCustomer.getFullName()+" was moved to food queue from  waiting queue "));
                         }
                     }
 
@@ -528,5 +560,87 @@ public class Main {
             System.out.println("An error occurred while loading data.");
         }
     }
+    public static void changeCustomerDetails(ArrayList<ArrayList<Customer>> array, WaitingQueue waitingQueue,String queueName){
+        Scanner input= new Scanner(System.in);
+        if (queueName.equals("main")){
+            try{
+                //prompt queue position to user
+                System.out.print("Enter the queue no(1-3): ");
+                int queueNo = input.nextInt() - 1;
+                System.out.print("Enter the row no" + "(1-"+ array.get(queueNo).size()+ ")" + ": ");
+                int rowNo = input.nextInt() - 1;
+                //validate the queue number and row number
+                if (queueNo < array.size()) {
+                    if (rowNo < array.get(queueNo).size()) {
+                        //performing null check
+                        if (array.get(queueNo).get(rowNo) != null) {
+                            setCustomerData(array.get(queueNo).get(rowNo));
+                        } else {
+                            System.out.println("Check the queue number and slot number");
+                        }
+                    } else {
+                        System.out.print("Invalid slot number");
+                    }
+                } else {
+                    System.out.print("Invalid queue number");
+                }
+            } catch (Exception e) {
+                System.out.println("Enter integer");
+            }
+        } else if (queueName.equals("waiting")) {
+            Customer[] waitingQueueList = waitingQueue.getWaitingQueue();
+            try {
+                System.out.print("Enter the customer's waiting queue no : ");
+                int waitingQueueNo= input.nextInt();
+                if (waitingQueueNo<waitingQueueList.length) {
+                    setCustomerData(waitingQueueList[waitingQueueNo]);
+                }else {
+                    System.out.println("Enter a valid waiting queue slot number");
+                }
+            } catch (Exception e) {
+                System.out.println("Enter an integer");
+            }
 
+        }
+    }
+    public static void setCustomerData(Customer customer) {
+        Scanner input= new Scanner(System.in);
+        try{
+            //prompt customer details
+            String tempFirst=customer.getFirstName();
+            System.out.print("If you want to change the first name enter 1 :");
+            String option1= input.next();
+            if (option1.equals("1")) {
+                System.out.print("Enter the customer's first name to change: ");
+                String firstName = input.next().toLowerCase();
+                customer.setFirstName(firstName);
+                System.out.println("Customer's First name "+tempFirst+" changed to "+firstName);
+            }
+            String tempSecond= customer.getSecondName();
+            System.out.print("If you want to change the first name enter 2 :");
+            String option2= input.next();
+            if (option2.equals("2")) {
+                System.out.print("Enter the customer's second name to change: ");
+                String secondName = input.next().toLowerCase();
+                customer.setSecondName(secondName);
+                System.out.println("Customer's First name "+tempSecond+" changed to "+secondName);
+            }
+            int tempBurgerCount= customer.getNoOfBurgers();
+            System.out.print("If you want to change the order burger count enter 3 :");
+            String option3= input.next();
+            if (option3.equals("3")) {
+                System.out.print("Enter the number of burgers required to change: ");
+                int noOfBurgers = input.nextInt();
+                if (noOfBurgers<=50){
+                    customer.setNoOfBurgers(noOfBurgers);
+                    System.out.println("Customer's order burger count "+tempBurgerCount+" changed to "+noOfBurgers);
+                }else{
+                    System.out.println("The maximum number of burgers that can be ordered is 50.");
+                }
+            }
+
+        }catch(Exception e){
+            System.out.println("Enter an integer for the number of required burgers.");
+        }
+    }
 }
